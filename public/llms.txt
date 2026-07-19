@@ -1,0 +1,21 @@
+# OSPA place
+
+> A OSPA place é a plataforma de inteligência territorial da OSPA — um gêmeo digital urbano que simplifica a gestão urbana e imobiliária para governos e mercado, integrando dados, usuários e terrenos. Faz parte da OSPA, empresa brasileira com foco em inteligência territorial, projeto e capital, com sedes em Porto Alegre, São Paulo e Miami.
+
+## Página canônica
+
+- [OSPA place](https://ospa.com.br/ospa-place): inteligência territorial — análise e soluções de dados urbanos para governos e desenvolvedores.
+
+## OSPA — linhas de negócio
+
+- [OSPA architecture](https://ospa.com.br/ospa-architecture): projeto arquitetônico e urbanismo para o desenvolvimento imobiliário e urbano.
+- [OSPA place](https://ospa.com.br/ospa-place): inteligência territorial — análise e soluções de dados urbanos para governos e desenvolvedores.
+- [OSPA capital](https://ospa.com.br/ospa-capital): crédito estruturado imobiliário, com foco em incorporadoras e investidores.
+
+## Institucional
+
+- [Home — OSPA](https://ospa.com.br/): visão geral da empresa e das três verticais.
+- Contato institucional: contato@ospa.com.br
+- LinkedIn: https://www.linkedin.com/company/ospa
+- Instagram: https://www.instagram.com/ospa
+- YouTube: https://www.youtube.com/@ospa

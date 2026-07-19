@@ -1,0 +1,50 @@
+# Bots de IA explicitamente listados (treinamento + busca em tempo real).
+# Sem linha Disallow ampla: default do protocolo é "tudo permitido".
+# Disallow específico replicado em cada bloco para defesa em profundidade (PRD §R1).
+
+User-agent: GPTBot
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: OAI-SearchBot
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: ChatGPT-User
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: ClaudeBot
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: Claude-SearchBot
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: Claude-User
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: PerplexityBot
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: Perplexity-User
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: Google-Extended
+Disallow: /admin/
+Disallow: /api/internal/
+
+User-agent: Applebot-Extended
+Disallow: /admin/
+Disallow: /api/internal/
+
+# Regra default para os demais crawlers
+User-agent: *
+Disallow: /admin/
+Disallow: /api/internal/
+
+Sitemap: https://ospa.com.br/sitemap.xml

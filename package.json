@@ -1,0 +1,30 @@
+{
+  "name": "ospa-place-home",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite-ssg build",
+    "build:spa": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@unhead/vue": "^2.1.13",
+    "choices.js": "^11.1.0",
+    "gsap": "^3.13.0",
+    "vite-ssg": "^28.3.0",
+    "vue": "^3.5.24",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "tailwindcss": "^4.1.17",
+    "vite": "^7.2.4"
+  },
+  "packageManager": "pnpm@9.15.0+sha256.09a8fe31a34fda706354680619f4002f4ccef6dadff93240d24ef6c831f0fd28"
+}
