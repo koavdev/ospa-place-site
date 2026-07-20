@@ -43,6 +43,41 @@
     BRES: "Vitória",
   };
 
+  // Variantes de verde por estado — usadas tanto no preenchimento do
+  // estado no mapa quanto no label/linha indicadora correspondente
+  const cityColors = {
+    BRRS: "#022c22",
+    BRSC: "#064e3b",
+    BRSP: "#134e4a",
+    BRGO: "#065f46",
+    BRMG: "#115e59",
+    BRPE: "#047857",
+    BRAL: "#0f766e",
+    BRRJ: "#166534",
+    BRES: "#15803d",
+  };
+
+  // O mapa deixa uma margem vazia (oceano) à direita, reservada via
+  // padding-right no wrapper (ver template). Todos os labels ficam
+  // nessa margem, fora do contorno do país, com uma linha ligando até
+  // a posição real da cidade — resolve o caso de Vitória, pequena
+  // demais para ser identificada só pela cor do estado.
+  const LABEL_X = 97;
+
+  // Pequeno ajuste vertical (em pontos percentuais) para não colidir
+  // labels de cidades muito próximas em latitude (ex: Recife/Maceió,
+  // Belo Horizonte/Vitória)
+  const labelYNudge = {
+    BRRS: 0,
+    BRSC: 0,
+    BRGO: 0,
+    BRMG: -2,
+    BRPE: -2,
+    BRAL: 3,
+    BRRJ: 0,
+    BRES: 3,
+  };
+
   const cityLabels = ref([]);
 
   const updateLabelPositions = () => {
@@ -53,21 +88,31 @@
 
     cityLabels.value = Object.entries(cityNames).reduce(
       (acc, [stateId, name]) => {
-        const path = mapContainer.value.querySelector(`path#${stateId}`);
-        if (!path) return acc;
+        // Usa o círculo-marcador de cada estado (já definido no SVG) em vez
+        // do bounding box do path: alguns paths (ex: BRES/Espírito Santo)
+        // têm um fragmento solto bem distante do restante do desenho, o
+        // que distorcia o centro calculado e desalinhava a linha indicadora
+        const marker = mapContainer.value.querySelector(`circle#${stateId}`);
+        if (!marker) return acc;
 
-        const pathRect = path.getBoundingClientRect();
+        const markerRect = marker.getBoundingClientRect();
+        const cx =
+          ((markerRect.left + markerRect.width / 2 - overlayRect.left)
+            / overlayRect.width)
+          * 100;
+        const cy =
+          ((markerRect.top + markerRect.height / 2 - overlayRect.top)
+            / overlayRect.height)
+          * 100;
+
         acc.push({
           id: stateId,
           name,
-          x:
-            ((pathRect.left + pathRect.width / 2 - overlayRect.left)
-              / overlayRect.width)
-            * 100,
-          y:
-            ((pathRect.top + pathRect.height / 2 - overlayRect.top)
-              / overlayRect.height)
-            * 100,
+          cx,
+          cy,
+          x: LABEL_X,
+          y: cy + (labelYNudge[stateId] || 0),
+          color: cityColors[stateId] || "#195E53",
         });
         return acc;
       },
@@ -96,14 +141,38 @@
     highlightedStates.forEach((stateId) => {
       const path = mapContainer.value.querySelector(`path#${stateId}`);
       if (path) {
-        path.style.fill = hovered ? "#195E53" : "transparent";
+        path.style.fill = hovered
+          ? cityColors[stateId] || "#195E53"
+          : "transparent";
       }
     });
   };
 
+  // O mapa desliza (padding-right animado) ao entrar/sair do hover, então
+  // a posição das linhas/labels precisa ser recalculada quadro a quadro
+  // enquanto essa transição roda, senão elas ficam paradas enquanto o
+  // mapa se move por baixo
+  const MAP_SHIFT_DURATION = 700;
+  let trackingRafId = null;
+
+  const trackLabelsDuringTransition = () => {
+    if (trackingRafId) cancelAnimationFrame(trackingRafId);
+
+    const start = performance.now();
+    const step = (now) => {
+      updateLabelPositions();
+      if (now - start < MAP_SHIFT_DURATION) {
+        trackingRafId = requestAnimationFrame(step);
+      } else {
+        trackingRafId = null;
+      }
+    };
+    trackingRafId = requestAnimationFrame(step);
+  };
+
   watch(isMapHovered, (newVal) => {
     updateSvgColors(newVal);
-    if (newVal) updateLabelPositions();
+    if (newVal) trackLabelsDuringTransition();
   });
 
   const handleResize = () => {
@@ -175,6 +244,7 @@
   onUnmounted(() => {
     window.removeEventListener("resize", handleResize);
     clearTimeout(resizeTimeout);
+    if (trackingRafId) cancelAnimationFrame(trackingRafId);
     if (ctx) ctx.revert();
   });
 </script>
@@ -224,7 +294,8 @@
       class="container mx-auto px-6 py-20 relative flex-grow flex">
       <!-- Background: Map -->
       <div
-        class="absolute inset-0 z-0 flex items-center justify-end overflow-visible">
+        class="absolute inset-0 z-0 flex items-center justify-end overflow-visible transition-[padding] duration-700 ease-in-out"
+        :class="isMapHovered ? 'pr-[9%]' : 'pr-0'">
         <div
           id="mapa"
           ref="mapContainer"
@@ -235,12 +306,28 @@
         <div
           ref="labelsOverlay"
           class="absolute inset-0 pointer-events-none">
+          <svg
+            class="absolute inset-0 w-full h-full transition-opacity duration-700"
+            :class="{ 'opacity-100': isMapHovered, 'opacity-0': !isMapHovered }"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none">
+            <line
+              v-for="label in cityLabels"
+              :key="`line-${label.id}`"
+              :x1="label.cx"
+              :y1="label.cy"
+              :x2="label.x"
+              :y2="label.y"
+              :stroke="label.color"
+              stroke-width="0.2"
+              vector-effect="non-scaling-stroke" />
+          </svg>
           <span
             v-for="label in cityLabels"
             :key="label.id"
-            class="city-label absolute -translate-x-1/2 -translate-y-1/2 text-white text-[10px] md:text-xs font-medium font-['Manrope'] uppercase tracking-wide transition-opacity duration-700 whitespace-nowrap"
+            class="city-label absolute -translate-y-1/2 text-[10px] md:text-xs font-medium font-['Manrope'] uppercase tracking-wide transition-opacity duration-700 whitespace-nowrap"
             :class="{ 'opacity-100': isMapHovered, 'opacity-0': !isMapHovered }"
-            :style="{ left: label.x + '%', top: label.y + '%' }"
+            :style="{ left: label.x + '%', top: label.y + '%', color: label.color }"
             >{{ label.name }}</span
           >
         </div>
@@ -296,9 +383,5 @@
 
   #mapa.map-hovered :deep(svg) {
     opacity: 1;
-  }
-
-  .city-label {
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   }
 </style>

@@ -594,7 +594,7 @@
       <div class="logos-scroll">
         <div class="logos-track">
           <img
-            v-for="(logo, index) in [...logos, ...logos]"
+            v-for="(logo, index) in [...logos, ...logos, ...logos]"
             :key="index"
             class="logo-item w-56 h-16 object-contain"
             :src="logo"
